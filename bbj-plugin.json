@@ -1,0 +1,29 @@
+{
+  "name": "BBjRouter",
+  "version": "0.0.1",
+  "private": false,
+  "description": "A simple yet powerfully BBj Router for your DWC application",
+  "author": "BASIS Europe Distribution GmbH",
+  "license": "MIT",
+  "homepage": "https://bbj-plugins.github.io/BBjRouter",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BBj-Plugins/BBjRouter"
+  },
+  "keywords": [
+    "bbj",
+    "dwc",
+    "routing",
+    "router",
+    "routes",
+    "pages"
+  ],
+  "bugs": {
+    "url": "https://github.com/BBj-Plugins/BBjRouter/issues"
+  },
+  "bbj_dependency": "21.14",
+  "client": [
+    "DWC"
+  ],
+  "plugin_dependencies": []
+}

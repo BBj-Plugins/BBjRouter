@@ -1,0 +1,297 @@
+use java.util.HashMap
+use com.google.gson.Gson
+use com.google.gson.JsonParser
+use com.google.gson.JsonObject
+rem /**
+rem  * BBjRouterEvent is the matched event payload for matched routes.
+rem  * It contains all the necessary data about the current matched route
+rem  *
+rem  * @author Hyyan Abo Fakher
+rem  */
+class public BBjRouterEvent
+  rem /**
+  rem  * The route data
+  rem  */
+  field public HashMap Data! = new HashMap()
+  rem /**
+  rem  * The route query params
+  rem  */
+  field public HashMap Params! = new HashMap()
+  rem /**
+  rem  * The route query as string
+  rem  */
+  field public BBjString QueryString! = ""
+  rem /**
+  rem  * The route path
+  rem  */
+  field public BBjString Path! = ""
+  field protected BBjRouter Router!
+  rem /**
+  rem  * Construct a new BBjRouterEvent
+  rem  *
+  rem  * @param router! The instance of the BBjRouter object
+  rem  */
+  method public BBjRouterEvent(BBjRouter router!)
+    #Router! = router!
+  methodend
+  rem /**
+  rem  *
+  rem /**
+  rem  * Get the BBjRouter instance
+  rem  *
+  rem  * @return BBjRouter
+  rem  */
+  method public BBjRouter getWidget()
+    methodret #Router!
+  methodend
+  rem /**
+  rem  * Alias for `BBjRouter.getWidget()`
+  rem  *
+  rem  * @return BBjRouter
+  rem  */
+  method public BBjRouter getControl()
+    methodret #getWidget()
+  methodend
+
+classend
+rem /**
+rem  * BBjRouter is a minimalistic client side router.
+rem  *
+rem  * At the application level there should be one and only one router .
+rem  * Having multi router instances is not supported and it does not have
+rem  * a valid use case.
+rem  *
+rem  * @author Hyyan Abo Fakher
+rem  */
+class public BBjRouter
+  rem /**
+  rem  * A constant to use for the not found event
+  rem  */
+  field public static BBjNumber ON_NOT_FOUND = 2
+  field protected BBjChildWindow Canvas!
+  field protected BBjHtmlView HTMLView!
+  rem /**
+  rem  * Construct new BBjRouter for the given BBjWindow instance
+  rem  *
+  rem * @param wnd! The BBjWindow instance
+  rem * @param hash! When true , then hash based routing will be used
+  rem * @param id! The id of the created child window
+  rem */
+  method public BBjRouter(BBjWindow wnd!, Boolean hash!, BBjNumber id!)
+    #Canvas! = wnd!.addChildWindow(id!, 0, 0, 0, 0, "", $00008010$, BBjAPI().getSysGui().getAvailableContext())
+    rem setup a hidden HTMLView to handle events
+    #HTMLView! = #Canvas!.addHtmlView(101, 0, 0, 0, 0, "", $0000$)
+    #HTMLView!.setOpaque(0)
+    #HTMLView!.setNoEdge(1)
+    #HTMLView!.setTabTraversable(0)
+    #HTMLView!.setFocusable(0)
+    #HTMLView!.setAttribute("data-bbj-router", "")
+    #HTMLView!.setCallback(BBjAPI.ON_NATIVE_JAVASCRIPT, #this!, "handleJavascriptEvents")
+    #HTMLView!.injectScript(#readFile("BBjRouter/dist/bbj-router.min.js"), 1)
+    base! = "/"
+
+    if(hash! = 0)
+      base! = "/webapp/" + BBjAPI().getBuiManager().getApplicationName() + "/"
+    fi
+
+    #HTMLView!.executeAsyncScript("BBjRouter.init(" + str(hash!)+ ", '" +  str(base!) +  "')")
+  methodend
+  rem /**
+  rem  * Construct new BBjRouter for the given BBjWindow instance
+  rem  *
+  rem  * @param wnd! The BBjWindow instance
+  rem  * @param id! The id of the created child window
+  rem */
+  method public BBjRouter(BBjWindow wnd!,  BBjNumber id!)
+    #this!(wnd!, BBjAPI.FALSE, id!)
+  methodend
+  rem /**
+  rem  * Construct new BBjRouter for the given BBjWindow instance
+  rem  *
+  rem  * @param wnd! The BBjWindow instance
+  rem  * @param hash! When true , then hash based routing will be used
+  rem */
+  method public BBjRouter(BBjWindow wnd!,  Boolean hash!)
+    #this!(wnd!, hash!, wnd!.getAvailableControlID())
+  methodend
+  rem /**
+  rem  * Construct new BBjRouter for the given BBjWindow instance
+  rem  *
+  rem * @param wnd! The BBjWindow instance
+  rem */
+  method public BBjRouter(BBjWindow wnd!)
+    #this!(wnd!, wnd!.getAvailableControlID())
+  methodend
+  rem /**
+  rem  * Get the unique auto generated id of the widget.
+  rem  *
+  rem  * @return BBjString
+  rem  */
+  method public BBjString getUUID()
+    methodret #UUID!
+  methodend
+  rem /**
+  rem  * Get the canvas's id
+  rem  *
+  rem  * @return BBjNumber
+  rem  */
+  method public BBjNumber getID()
+    methodret #getCanvas().getID()
+  methodend
+  rem /**
+  rem  * Navigates to a route but it doesn't change the browser URL.
+  rem  * You should fire this at least once in the beginning.
+  rem  *
+  rem  * @return The router instance.
+  rem  */
+  method public BBjRouter resolve()
+    #getHTMLView().executeAsyncScript("BBjRouter.resolve()")
+    methodret #this!
+  methodend
+  rem /**
+  rem  * Navigate to the given route.
+  rem  *
+  rem  * @param path! The path to navigate to.
+  rem  * @param silent! When true , then the router will not fire events
+  rem  *                for this change
+  rem  *
+  rem  * @return The router instance.
+  rem  */
+  method public BBjRouter navigate(BBjString path!, BBjNumber silent!)
+    #getHTMLView().executeAsyncScript("BBjRouter.navigate('" + path! + "'," + str(silent!)+ ")")
+    methodret #this!
+  methodend
+  rem /**
+  rem  * Navigate to the given route and fire change events
+  rem  *
+  rem  * @param path! The path to navigate to.
+  rem  *
+  rem  * @return The router instance.
+  rem  */
+  method public BBjRouter navigate(BBjString path!)
+    #navigate(path!, 0)
+    methodret #this!
+  methodend
+  rem /**
+  rem  * Register a new route
+  rem  *
+  rem  * @param path! The route's path.
+  rem  * @param callback! The route's callback's name to execute when
+  rem  *                  the route is matched
+  rem  *
+  rem  * @return The router instance.
+  rem  */
+  method public BBjRouter register(BBjString path!, BBjString callback!)
+    #getHTMLView().executeAsyncScript("BBjRouter.on('" + path! + "')")
+    BBjAPI().setCustomEventCallback(str(#this!) + str(path!), callback!)
+    methodret #this!
+  methodend
+  rem /**
+  rem  * Register a new route
+  rem  *
+  rem  * @param path! The route's path.
+  rem  * @param obj! A class instance
+  rem  * @param method! A method in the given class instance to execute when
+  rem  *                the route is matched
+  rem  *
+  rem  * @return The router instance.
+  rem  */
+  method public BBjRouter register(BBjString path!, CustomObject obj!, BBjString method!)
+    #getHTMLView().executeAsyncScript("BBjRouter.on('" + path! + "')")
+    BBjAPI().setCustomEventCallback(str(#this!) + str(path!), obj!, method!)
+    methodret #this!
+  methodend
+  rem /**
+  rem  * Unregister an already registered route
+  rem  *
+  rem  * @param path! The route's path.
+  rem  *
+  rem  * @return The router instance.
+  rem  */
+  method public BBjRouter unregister(BBjString path!)
+    #getHTMLView().executeAsyncScript("BBjRouter.off('" + path! + "')")
+    methodret #this!
+  methodend
+  rem /**
+  rem  * Set a router event listener
+  rem  *
+  rem  * @see BBjMediaQuery.ON_NOT_FOUND
+  rem  *
+  rem  * @param event! The modal event
+  rem  * @param callback! The event callback
+  rem  */
+  method public void setCallback(int event!, String callback!)
+    BBjAPI().setCustomEventCallback(str(#this!) + str(event!), callback!)
+  methodend
+  rem /**
+  rem  * Set a router event listener
+  rem  *
+  rem  * @see BBjMediaQuery.ON_NOT_FOUND
+  rem  *
+  rem  * @param event! The modal event
+  rem  * @param callback! A class instance
+  rem  * @param method! The method name in the passed class
+  rem  */
+  method public void setCallback(int event!, CustomObject instance!, String method!)
+    BBjAPI().setCustomEventCallback(str(#this!) + str(event!), instance!, method!)
+  methodend
+  rem /**
+  rem  * Clear an event callback
+  rem  *
+  rem  * @param event! The widget event
+  rem  */
+  method public void clearCallback(BBjNumber event!)
+    BBjAPI().clearCustomEventCallback(str(#this!) + str(event!))
+  methodend
+  rem /**
+  rem  * Destroy the widget
+  rem  */
+  method public void destroy()
+    #getHTMLView().executeAsyncScript("BBjRouter.destroy()")
+    #getCanvas().destroy()
+  methodend
+  rem /**
+  rem  * Handle the router client events.
+  rem  *
+  rem  * @param ev! The Javascript event
+  rem  * @ignore
+  rem  */
+  method public void handleJavascriptEvents(BBjNativeJavaScriptEvent ev!)
+    map! = ev!.getEventMap()
+    type$ = str(map!.get("type"))
+    detail$ = str(map!.get("detail"))
+    event! = new BBjRouterEvent(#this!)
+    parser! = new JsonParser()
+    gson! = new Gson()
+    detailsAsJson!  = parser!.parse(detail$).getAsJsonObject()
+    path! = detailsAsJson!.get("path", err=*next).getAsString()
+    event!.setData(gson!.fromJson(detailsAsJson!.get("data").toString(), HashMap.class), err=*next)
+    event!.setParams(gson!.fromJson(detailsAsJson!.get("params").toString(), HashMap.class), err=*next)
+    event!.setQueryString(detailsAsJson!.get("queryString").getAsString(), err=*next)
+    event!.setPath(path!)
+    switch type$
+      case "bbj-router-matched"
+        BBjAPI().postPriorityCustomEvent(str(#this!) + str(path!), event!)
+        break
+      case "bbj-router-notfound"
+        BBjAPI().postPriorityCustomEvent(str(#this!) + str(BBjRouter.ON_NOT_FOUND), event!)
+        break
+    swend
+  methodend
+  rem /**
+  rem  * Read the content of the given file as a String.
+  rem  *
+  rem  * @param file! The file's path
+  rem  *
+  rem  * @return The file's content
+  rem  */
+  method protected BBjString readFile(BBjString file$)
+    content$ = ""
+    ch=unt
+    open (ch)file$
+    read record (ch,siz=5512000)content$
+    close (ch)
+    methodret content$
+  methodend
+
+classend
