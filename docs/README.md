@@ -1,4 +1,4 @@
-# BBjRouter Widget
+# BBjRouter Plugin
 
 <p>
   <a href="http://www.basis.com/downloads">
