@@ -198,7 +198,7 @@ The navigate method by default:
 
 ## Hash based routing
 
-BBjRouter supports hash based routing. Which means that it uses the hash string as path for routing. For example `/webapp/my-app/#/about/team` is treated as `/about/team`. To enable this mode you have to pass `hash: true` when creating the router.
+BBjRouter supports hash based routing. Which means that it uses the hash string as path for routing. For example `/webapp/my-app#/about/team` is treated as `/about/team`. To enable this mode you have to pass `hash: true` when creating the router.
 
 ```BBj
 router! = new BBjRouter(wnd!, BBjAPI.TRUE)
