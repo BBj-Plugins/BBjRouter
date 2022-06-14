@@ -1,10 +1,10 @@
 # BBjRouter Plugin
 
 <p>
-  <a href="http://www.basis.com/downloads">
+  <a href="http://www.basis.cloud/downloads">
     <img src="https://img.shields.io/badge/BBj-v21.14-blue" alt="BBj v21.14" />
   </a>
-  <a href="http://www.basis.com/downloads">
+  <a href="http://www.basis.cloud/downloads">
     <img src="https://img.shields.io/badge/Client-DWC-blue" alt="Client DWC" />
   </a>  
   <a href="https://github.com/BBj-Plugins/BBjRouter/blob/master/README.md">
