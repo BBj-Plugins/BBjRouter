@@ -38,7 +38,7 @@ And much more !
 
 ## The gist
 
-```BBj
+```bbj
 use ::BBjRouter/BBjRouter.bbj::BBjRouter
 use ::BBjRouter/BBjRouter.bbj::BBjRouterEvent
 
@@ -86,7 +86,7 @@ To unregister the route , you can use the `BBjRouter.unregister` method. The met
 BBjRouter relies on regular expressions to match strings against location paths. This logic is abstracted. Here are couple of examples:
 
 
-```BBj
+```bbj
 rem matches specifically "/dashboard"
 router!.register("/dashboard", "onMatch")
 
@@ -110,13 +110,13 @@ router!.register("/dashboard/product/:id/?", "onMatch")
 
 The parameterized routes have paths that contain dynamic parts. For example:
 
-```BBj
+```bbj
 router!.register("/user/:id/:action", "onMatch")
 ```
 
 `"/user/2f79ddd0-a911-11ec/save"` matches the defined route. `"2f79ddd0-a911-11ec"` maps to id and `"save"` to action. You can access the matched parts from the the matched event's payload.
 
-```BBj
+```bbj
 use ::BBjRouter/BBjRouter.bbj::BBjRouter
 use ::BBjRouter/BBjRouter.bbj::BBjRouterEvent
 
@@ -152,7 +152,7 @@ release
 Beside dynamic parts, BBjRouter provides also access to the query parameters in the URL. You can access the query parameters from the the matched event's payload.
 
 
-```BBj
+```bbj
 use ::BBjRouter/BBjRouter.bbj::BBjRouter
 use ::BBjRouter/BBjRouter.bbj::BBjRouterEvent
 
@@ -200,7 +200,7 @@ The navigate method by default:
 
 BBjRouter supports hash based routing. Which means that it uses the hash string as path for routing. For example `/webapp/my-app#/about/team` is treated as `/about/team`. To enable this mode you have to pass `hash: true` when creating the router.
 
-```BBj
+```bbj
 router! = new BBjRouter(wnd!, BBjAPI.TRUE)
 ```
 
@@ -208,7 +208,7 @@ router! = new BBjRouter(wnd!, BBjAPI.TRUE)
 
 BBjRouter offers a special handler for the cases where a no route match is found.
 
-```BBj
+```bbj
 use ::BBjRouter/BBjRouter.bbj::BBjRouter
 use ::BBjRouter/BBjRouter.bbj::BBjRouterEvent
 
